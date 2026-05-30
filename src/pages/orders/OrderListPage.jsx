@@ -77,7 +77,8 @@ function ProductPicker({ products, onAdd, onClose }) {
               <button
                 type="button"
                 onClick={() => {
-                  const qty = Math.max(1, parseInt(document.getElementById(`qty-${p.id}`)?.value) || 1)
+                  const raw = parseInt(document.getElementById(`qty-${p.id}`)?.value) || 1
+                  const qty = Math.min(Math.max(1, raw), p.stock)
                   onAdd({ ...p, quantity: qty })
                   onClose()
                 }}
@@ -160,7 +161,7 @@ export default function OrderListPage() {
 
   const handleCartQty = (id, qty) => {
     if (qty < 1) { handleRemoveFromCart(id); return }
-    setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i))
+    setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: Math.min(qty, i.stock) } : i))
   }
 
   const handleClose = () => {
@@ -315,13 +316,15 @@ export default function OrderListPage() {
                             −
                           </button>
                           <input
-                            type="number" min="1"
+                            type="number" min="1" max={item.stock}
                             value={item.quantity}
                             onChange={e => handleCartQty(item.id, parseInt(e.target.value) || 1)}
                             className="w-10 text-center text-sm font-semibold text-gray-800 border border-gray-200 rounded-md py-0.5 focus:outline-none focus:border-violet-400"
                           />
-                          <button type="button" onClick={() => handleCartQty(item.id, item.quantity + 1)}
-                            className="w-6 h-6 rounded-md bg-violet-100 text-violet-600 hover:bg-violet-200 flex items-center justify-center font-bold text-sm transition-colors">
+                          <button type="button"
+                            onClick={() => handleCartQty(item.id, item.quantity + 1)}
+                            disabled={item.quantity >= item.stock}
+                            className="w-6 h-6 rounded-md bg-violet-100 text-violet-600 hover:bg-violet-200 flex items-center justify-center font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                             +
                           </button>
                         </div>
