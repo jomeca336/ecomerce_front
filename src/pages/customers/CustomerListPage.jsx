@@ -1,21 +1,21 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
 import { getCustomers, createCustomer, deleteCustomer } from '../../api/customers.api'
 import { createAddress } from '../../api/addresses.api'
 import { StatusBadge } from '../../components/ui/StatusBadge'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { usePermissions } from '../../hooks/usePermissions'
+import CustomerDetailModal from './CustomerDetailModal'
 
 const emptyAddress = () => ({ addressLine: '', city: '' })
 
 export default function CustomerListPage() {
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
   const { isAdmin } = usePermissions()
 
   const [createModal, setCreateModal] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [detailId, setDetailId] = useState(null)
   const [form, setForm] = useState({ name: '', email: '' })
   const [addresses, setAddresses] = useState([emptyAddress()])
   const [error, setError] = useState('')
@@ -37,7 +37,7 @@ export default function CustomerListPage() {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['customers'] })
       handleCloseCreate()
-      navigate(`/dashboard/customers/${res.data.id}`)
+      setDetailId(res.data.id)
     },
     onError: () => setError('Error al crear el cliente. Verifica los datos.'),
   })
@@ -105,7 +105,7 @@ export default function CustomerListPage() {
                 <td className="px-6 py-4"><StatusBadge value={c.status} /></td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2 justify-end">
-                    <button className="btn-secondary text-xs py-1.5 px-3" onClick={() => navigate(`/dashboard/customers/${c.id}`)}>
+                    <button className="btn-secondary text-xs py-1.5 px-3" onClick={() => setDetailId(c.id)}>
                       Ver detalle
                     </button>
                     {isAdmin && (
@@ -222,6 +222,15 @@ export default function CustomerListPage() {
           message={`¿Seguro que deseas eliminar a "${deleteTarget.name}"? Esta acción no se puede deshacer.`}
           onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
           onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
+      {/* Modal detalle cliente */}
+      {detailId && (
+        <CustomerDetailModal
+          customerId={detailId}
+          onClose={() => setDetailId(null)}
+          onDeleted={() => setDetailId(null)}
         />
       )}
     </div>

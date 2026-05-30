@@ -7,3 +7,4 @@ export const payOrder     = (id)                  => api.get(`/api/Order/${id}/p
 export const shipOrder    = (id)                  => api.get(`/api/Order/${id}/ship`)
 export const deliverOrder = (id)                  => api.get(`/api/Order/${id}/deliver`)
 export const cancelOrder  = (id)                  => api.get(`/api/Order/${id}/cancel`)
+export const addOrderItem = (id, data)            => api.post(`/api/Order/${id}/items`, data)
