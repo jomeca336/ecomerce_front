@@ -158,6 +158,11 @@ export default function OrderListPage() {
 
   const handleRemoveFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id))
 
+  const handleCartQty = (id, qty) => {
+    if (qty < 1) { handleRemoveFromCart(id); return }
+    setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: qty } : i))
+  }
+
   const handleClose = () => {
     setModal(false)
     setPickerOpen(false)
@@ -299,12 +304,28 @@ export default function OrderListPage() {
                 ) : (
                   <div className="space-y-2">
                     {cart.map(item => (
-                      <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 rounded-xl">
+                      <div key={item.id} className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-xl">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-                          <p className="text-xs text-gray-400">×{item.quantity} · ${item.price?.toLocaleString('es-CO')} c/u</p>
+                          <p className="text-xs text-gray-400">${item.price?.toLocaleString('es-CO')} c/u</p>
                         </div>
-                        <p className="text-sm font-semibold text-gray-700 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button type="button" onClick={() => handleCartQty(item.id, item.quantity - 1)}
+                            className="w-6 h-6 rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center font-bold text-sm transition-colors">
+                            −
+                          </button>
+                          <input
+                            type="number" min="1"
+                            value={item.quantity}
+                            onChange={e => handleCartQty(item.id, parseInt(e.target.value) || 1)}
+                            className="w-10 text-center text-sm font-semibold text-gray-800 border border-gray-200 rounded-md py-0.5 focus:outline-none focus:border-violet-400"
+                          />
+                          <button type="button" onClick={() => handleCartQty(item.id, item.quantity + 1)}
+                            className="w-6 h-6 rounded-md bg-violet-100 text-violet-600 hover:bg-violet-200 flex items-center justify-center font-bold text-sm transition-colors">
+                            +
+                          </button>
+                        </div>
+                        <p className="text-sm font-semibold text-gray-700 w-20 text-right shrink-0">
                           ${(item.price * item.quantity).toLocaleString('es-CO')}
                         </p>
                         <button type="button" onClick={() => handleRemoveFromCart(item.id)}
