@@ -16,7 +16,10 @@ const XIcon = () => (
 
 function ProductPicker({ products, onAdd, onClose }) {
   const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState(null) // { product, qty }
+  const [qtys, setQtys] = useState({})  // { productId: quantity string }
+
+  const getQty = (id) => qtys[id] ?? '1'
+  const setQty = (id, val) => setQtys(prev => ({ ...prev, [id]: val }))
 
   const filtered = search.trim()
     ? products.filter(p =>
@@ -60,34 +63,47 @@ function ProductPicker({ products, onAdd, onClose }) {
           {filtered.length === 0 && (
             <p className="text-sm text-gray-400 text-center py-6">Sin resultados.</p>
           )}
-          {filtered.map(p => (
-            <div key={p.id} className="flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-violet-50 rounded-xl transition-colors">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
-                <p className="text-xs text-gray-400 font-mono">{p.sku} · ${p.price?.toLocaleString('es-CO')} · stock: {p.stock}</p>
+          {filtered.map(p => {
+            const rawVal = getQty(p.id)
+            const numVal = parseInt(rawVal) || 0
+            const overStock = numVal > p.stock
+            return (
+              <div key={p.id} className="px-4 py-3 bg-gray-50 hover:bg-violet-50 rounded-xl transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
+                    <p className="text-xs text-gray-400 font-mono">{p.sku} · ${p.price?.toLocaleString('es-CO')} · stock: {p.stock}</p>
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    value={rawVal}
+                    onChange={e => setQty(p.id, e.target.value)}
+                    className={`w-16 text-center py-1.5 text-sm border rounded-lg focus:outline-none ${overStock ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-gray-200 bg-white'}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const qty = Math.min(Math.max(1, numVal || 1), p.stock)
+                      onAdd({ ...p, quantity: qty })
+                      onClose()
+                    }}
+                    className="btn-primary text-xs py-1.5 px-3 shrink-0"
+                  >
+                    Agregar
+                  </button>
+                </div>
+                {overStock && (
+                  <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
+                      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                    Solo hay {p.stock} en stock. Se agregará ese máximo.
+                  </p>
+                )}
               </div>
-              <input
-                type="number"
-                min="1"
-                max={p.stock}
-                defaultValue={1}
-                className="input w-16 text-center py-1.5 text-sm"
-                id={`qty-${p.id}`}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const raw = parseInt(document.getElementById(`qty-${p.id}`)?.value) || 1
-                  const qty = Math.min(Math.max(1, raw), p.stock)
-                  onAdd({ ...p, quantity: qty })
-                  onClose()
-                }}
-                className="btn-primary text-xs py-1.5 px-3 shrink-0"
-              >
-                Agregar
-              </button>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>
@@ -305,7 +321,8 @@ export default function OrderListPage() {
                 ) : (
                   <div className="space-y-2">
                     {cart.map(item => (
-                      <div key={item.id} className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-xl">
+                      <div key={item.id} className="px-4 py-2.5 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
                           <p className="text-xs text-gray-400">${item.price?.toLocaleString('es-CO')} c/u</p>
@@ -335,6 +352,15 @@ export default function OrderListPage() {
                           className="w-6 h-6 rounded-md flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors shrink-0">
                           <XIcon />
                         </button>
+                      </div>
+                      {item.quantity >= item.stock && (
+                        <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                          </svg>
+                          Máximo de stock disponible
+                        </p>
+                      )}
                       </div>
                     ))}
                     <div className="flex justify-between items-center px-4 py-3 bg-violet-50 rounded-xl">
