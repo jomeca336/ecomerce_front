@@ -18,7 +18,12 @@ export default function LoginPage() {
       const { default: api } = await import('../../utils/axios')
       const res = await api.post('/api/auth/login', { email, password })
       const { accessToken } = res.data
-      login(accessToken, [])
+      const payload = JSON.parse(atob(accessToken.split('.')[1]))
+      let roles = payload.roles ?? []
+      if (roles.length > 0 && typeof roles[0] === 'object') {
+        roles = roles.map(r => r.name ?? String(r))
+      }
+      login(accessToken, roles)
       navigate('/dashboard')
     } catch {
       setError('Credenciales incorrectas. Intenta de nuevo.')

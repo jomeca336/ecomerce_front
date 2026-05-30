@@ -188,7 +188,7 @@ export default function ProductListPage() {
                         Stock
                       </button>
                       <button
-                        className={`text-xs py-1.5 px-3 rounded-lg font-medium transition-colors ${p.active ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                        className={`text-xs py-1.5 w-24 text-center rounded-lg font-medium transition-colors ${p.active ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                         onClick={() => toggleMutation.mutate(p)}
                         disabled={toggleMutation.isPending}
                       >

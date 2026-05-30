@@ -27,7 +27,7 @@ export function StatusBadge({ value }) {
   const style = STYLES[key] ?? 'bg-gray-100 text-gray-500'
   const label = LABELS[key] ?? key
   return (
-    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${style}`}>
+    <span className={`inline-flex justify-center text-xs font-semibold px-2.5 py-1 rounded-full min-w-[5rem] ${style}`}>
       {label}
     </span>
   )
