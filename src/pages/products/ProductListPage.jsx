@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getProducts, createProduct, updateProduct, updateInventory } from '../../api/products.api'
+import { getProducts, createProduct, updateProduct, updateInventory, deleteProduct } from '../../api/products.api'
 import { getCategories } from '../../api/categories.api'
 import { StatusBadge } from '../../components/ui/StatusBadge'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
+import { usePermissions } from '../../hooks/usePermissions'
 import ProductModal from './ProductModal'
 import InventoryModal from './InventoryModal'
 
@@ -56,8 +58,10 @@ function StockBadge({ stock, minStock }) {
 
 export default function ProductListPage() {
   const queryClient = useQueryClient()
+  const { isAdmin } = usePermissions()
   const [productModal, setProductModal] = useState({ open: false, product: null })
   const [inventoryModal, setInventoryModal] = useState({ open: false, product: null })
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   const { data: products = [], isLoading, isError } = useQuery({
     queryKey: ['products'],
@@ -97,6 +101,22 @@ export default function ProductListPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       setInventoryModal({ open: false, product: null })
+    },
+  })
+
+  const toggleMutation = useMutation({
+    mutationFn: (p) => updateProduct(p.id, {
+      sku: p.sku, name: p.name, description: p.description,
+      price: p.price, active: !p.active, categoryId: p.categoryId,
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteProduct(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      setDeleteTarget(null)
     },
   })
 
@@ -167,6 +187,21 @@ export default function ProductListPage() {
                       >
                         Stock
                       </button>
+                      <button
+                        className={`text-xs py-1.5 px-3 rounded-lg font-medium transition-colors ${p.active ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                        onClick={() => toggleMutation.mutate(p)}
+                        disabled={toggleMutation.isPending}
+                      >
+                        {p.active ? 'Desactivar' : 'Activar'}
+                      </button>
+                      {isAdmin && (
+                        <button
+                          className="btn-danger text-xs py-1.5 px-3"
+                          onClick={() => setDeleteTarget(p)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -194,6 +229,15 @@ export default function ProductListPage() {
           error={inventoryMutation.isError ? 'Error al actualizar inventario.' : ''}
           onSave={(data) => inventoryMutation.mutate({ id: inventoryModal.product.id, data })}
           onClose={() => setInventoryModal({ open: false, product: null })}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Eliminar producto"
+          message={`¿Seguro que deseas eliminar "${deleteTarget.name}"? Esta acción no se puede deshacer.`}
+          onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
+          onCancel={() => setDeleteTarget(null)}
         />
       )}
     </div>
