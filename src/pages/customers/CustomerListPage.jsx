@@ -19,6 +19,7 @@ export default function CustomerListPage() {
   const [form, setForm] = useState({ name: '', email: '' })
   const [addresses, setAddresses] = useState([emptyAddress()])
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
 
   const { data: customers = [], isLoading, isError } = useQuery({
     queryKey: ['customers'],
@@ -80,6 +81,13 @@ export default function CustomerListPage() {
         </button>
       </div>
 
+      <div className="relative mb-4 max-w-sm">
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 absolute left-3 top-1/2 -translate-y-1/2">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input className="input pl-9" placeholder="Buscar por nombre o email..." value={search} onChange={e => setSearch(e.target.value)} />
+      </div>
+
       <div className="card p-0 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
@@ -91,14 +99,23 @@ export default function CustomerListPage() {
             </tr>
           </thead>
           <tbody>
-            {customers.length === 0 && (
-              <tr>
-                <td colSpan={4} className="text-center px-6 py-10 text-gray-400">
-                  No hay clientes registrados.
-                </td>
-              </tr>
-            )}
-            {customers.map((c) => (
+            {(() => {
+              const filteredCustomers = search.trim()
+                ? customers.filter(c =>
+                    c.name.toLowerCase().includes(search.toLowerCase()) ||
+                    c.email.toLowerCase().includes(search.toLowerCase())
+                  )
+                : customers
+              return (
+                <>
+                  {filteredCustomers.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center px-6 py-10 text-gray-400">
+                        No hay clientes registrados.
+                      </td>
+                    </tr>
+                  )}
+                  {filteredCustomers.map((c) => (
               <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 font-medium text-gray-800">{c.name}</td>
                 <td className="px-6 py-4 text-gray-500">{c.email}</td>
@@ -117,6 +134,9 @@ export default function CustomerListPage() {
                 </td>
               </tr>
             ))}
+                </>
+              )
+            })()}
           </tbody>
         </table>
       </div>

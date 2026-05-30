@@ -8,15 +8,101 @@ import { StatusBadge } from '../../components/ui/StatusBadge'
 import { Pagination } from '../../components/ui/Pagination'
 import OrderDetailModal from './OrderDetailModal'
 
+const XIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+  </svg>
+)
+
+function ProductPicker({ products, onAdd, onClose }) {
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState(null) // { product, qty }
+
+  const filtered = search.trim()
+    ? products.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.sku.toLowerCase().includes(search.toLowerCase())
+      )
+    : products
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={{ background: 'rgba(17,10,36,0.55)', backdropFilter: 'blur(4px)' }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
+          <h3 className="text-base font-bold text-gray-800">Agregar producto</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-5 pt-4 pb-2 shrink-0">
+          <div className="relative">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 absolute left-3 top-1/2 -translate-y-1/2">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input
+              className="input pl-9"
+              placeholder="Buscar por nombre o SKU..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 pb-5 space-y-1.5">
+          {filtered.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-6">Sin resultados.</p>
+          )}
+          {filtered.map(p => (
+            <div key={p.id} className="flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-violet-50 rounded-xl transition-colors">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
+                <p className="text-xs text-gray-400 font-mono">{p.sku} · ${p.price?.toLocaleString('es-CO')} · stock: {p.stock}</p>
+              </div>
+              <input
+                type="number"
+                min="1"
+                max={p.stock}
+                defaultValue={1}
+                className="input w-16 text-center py-1.5 text-sm"
+                id={`qty-${p.id}`}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const qty = Math.max(1, parseInt(document.getElementById(`qty-${p.id}`)?.value) || 1)
+                  onAdd({ ...p, quantity: qty })
+                  onClose()
+                }}
+                className="btn-primary text-xs py-1.5 px-3 shrink-0"
+              >
+                Agregar
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function OrderListPage() {
   const queryClient = useQueryClient()
 
   const [page, setPage] = useState(0)
+  const [search, setSearch] = useState('')
   const [modal, setModal] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [detailId, setDetailId] = useState(null)
   const [form, setForm] = useState({ customerId: '', shippingAddressId: '' })
-  const [cart, setCart] = useState({})   // { productId: quantity }
-  const [search, setSearch] = useState('')
+  const [cart, setCart] = useState([])  // [{ id, sku, name, price, quantity }]
   const [error, setError] = useState('')
 
   const { data, isLoading, isError } = useQuery({
@@ -42,40 +128,14 @@ export default function OrderListPage() {
   })
 
   const activeProducts = products.filter(p => p.active && p.stock > 0)
-
-  const filteredProducts = search.trim()
-    ? activeProducts.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.sku.toLowerCase().includes(search.toLowerCase())
-      )
-    : activeProducts
-
-  const cartItems = Object.entries(cart)
-    .filter(([, qty]) => qty > 0)
-    .map(([id, qty]) => {
-      const p = products.find(p => p.id === parseInt(id))
-      return p ? { ...p, quantity: qty } : null
-    })
-    .filter(Boolean)
-
-  const total = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
-
-  const setQty = (productId, qty) => {
-    setCart(prev => {
-      if (qty <= 0) {
-        const next = { ...prev }
-        delete next[productId]
-        return next
-      }
-      return { ...prev, [productId]: qty }
-    })
-  }
+  const cartProductIds = new Set(cart.map(i => i.id))
+  const availableProducts = activeProducts.filter(p => !cartProductIds.has(p.id))
 
   const createMutation = useMutation({
-    mutationFn: async ({ customerId, shippingAddressId, cartItems }) => {
+    mutationFn: async ({ customerId, shippingAddressId, cart }) => {
       const res = await createOrder({ customerId, shippingAddressId })
       const orderId = res.data.id
-      for (const item of cartItems) {
+      for (const item of cart) {
         await addOrderItem(orderId, { productId: item.id, quantity: item.quantity })
       }
       return res
@@ -88,16 +148,31 @@ export default function OrderListPage() {
     onError: () => setError('Error al crear la orden. Verifica los datos.'),
   })
 
+  const handleAddProduct = (product) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === product.id)
+      if (existing) return prev.map(i => i.id === product.id ? { ...i, quantity: i.quantity + product.quantity } : i)
+      return [...prev, product]
+    })
+  }
+
+  const handleRemoveFromCart = (id) => setCart(prev => prev.filter(i => i.id !== id))
+
   const handleClose = () => {
     setModal(false)
+    setPickerOpen(false)
     setForm({ customerId: '', shippingAddressId: '' })
-    setCart({})
-    setSearch('')
+    setCart([])
     setError('')
   }
 
+  const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const orders = data?.content ?? []
   const totalPages = data?.totalPages ?? 0
+
+  const filteredOrders = search.trim()
+    ? orders.filter(o => (o.customerName ?? '').toLowerCase().includes(search.toLowerCase()))
+    : orders
 
   const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
@@ -107,9 +182,17 @@ export default function OrderListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="page-title mb-0">Órdenes</h1>
         <button className="btn-primary" onClick={() => setModal(true)}>+ Nueva orden</button>
+      </div>
+
+      {/* Barra de búsqueda */}
+      <div className="relative mb-4 max-w-sm">
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 absolute left-3 top-1/2 -translate-y-1/2">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input className="input pl-9" placeholder="Buscar por cliente..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       <div className="card p-0 overflow-hidden">
@@ -125,10 +208,10 @@ export default function OrderListPage() {
             </tr>
           </thead>
           <tbody>
-            {orders.length === 0 && (
+            {filteredOrders.length === 0 && (
               <tr><td colSpan={6} className="text-center px-6 py-10 text-gray-400">No hay órdenes registradas.</td></tr>
             )}
-            {orders.map((o) => (
+            {filteredOrders.map((o) => (
               <tr key={o.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 font-mono text-xs text-gray-400">#{o.id}</td>
                 <td className="px-6 py-4 text-gray-700 font-medium">{o.customerName ?? `Cliente #${o.customerId}`}</td>
@@ -148,10 +231,7 @@ export default function OrderListPage() {
 
       <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
-      {/* Modal detalle */}
-      {detailId && (
-        <OrderDetailModal orderId={detailId} onClose={() => setDetailId(null)} />
-      )}
+      {detailId && <OrderDetailModal orderId={detailId} onClose={() => setDetailId(null)} />}
 
       {/* Modal nueva orden */}
       {modal && (
@@ -160,9 +240,8 @@ export default function OrderListPage() {
           style={{ background: 'rgba(17,10,36,0.45)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => e.target === e.currentTarget && handleClose()}
         >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 shrink-0">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 sticky top-0 bg-white z-10">
               <h2 className="text-lg font-bold text-gray-800">Nueva orden</h2>
               <button onClick={handleClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -171,153 +250,105 @@ export default function OrderListPage() {
               </button>
             </div>
 
-            <div className="flex flex-1 min-h-0">
-              {/* Columna izquierda: cliente + productos */}
-              <div className="flex-1 flex flex-col min-h-0 border-r border-gray-100">
-                <div className="px-6 pt-5 pb-3 space-y-4 shrink-0">
-                  {error && (
-                    <div className="px-4 py-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">{error}</div>
-                  )}
-                  <div>
-                    <label className="label">Cliente</label>
-                    <select className="input" value={form.customerId}
-                      onChange={e => setForm({ customerId: e.target.value, shippingAddressId: '' })} required>
-                      <option value="">Seleccionar cliente...</option>
-                      {customers.filter(c => c.status === 'ACTIVE').map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="label">Dirección de envío</label>
-                    <select className="input" value={form.shippingAddressId}
-                      onChange={e => setForm(f => ({ ...f, shippingAddressId: e.target.value }))}
-                      required disabled={!form.customerId}>
-                      <option value="">{form.customerId ? 'Seleccionar dirección...' : 'Primero elige un cliente'}</option>
-                      {addresses.map(a => (
-                        <option key={a.id} value={a.id}>{a.addressLine}, {a.city}</option>
-                      ))}
-                    </select>
-                    {form.customerId && addresses.length === 0 && (
-                      <p className="text-xs text-amber-500 mt-1">Este cliente no tiene direcciones.</p>
-                    )}
-                  </div>
+            <div className="px-6 py-5 space-y-4">
+              {error && <div className="px-4 py-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">{error}</div>}
 
-                  {/* Buscador */}
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Productos</p>
-                    <div className="relative">
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 absolute left-3 top-1/2 -translate-y-1/2">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                      </svg>
-                      <input
-                        className="input pl-9"
-                        placeholder="Buscar por nombre o SKU..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Lista de productos scrollable */}
-                <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-1.5">
-                  {filteredProducts.length === 0 && (
-                    <p className="text-sm text-gray-400 py-4 text-center">Sin resultados.</p>
-                  )}
-                  {filteredProducts.map(p => {
-                    const qty = cart[p.id] ?? 0
-                    return (
-                      <div key={p.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${qty > 0 ? 'border-violet-200 bg-violet-50' : 'border-gray-100 bg-gray-50 hover:bg-gray-100'}`}>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
-                          <p className="text-xs text-gray-400 font-mono">{p.sku} · ${p.price?.toLocaleString('es-CO')} · stock {p.stock}</p>
-                        </div>
-                        {qty === 0 ? (
-                          <button
-                            type="button"
-                            onClick={() => setQty(p.id, 1)}
-                            className="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 hover:bg-violet-200 flex items-center justify-center font-bold text-lg transition-colors shrink-0"
-                          >
-                            +
-                          </button>
-                        ) : (
-                          <div className="flex items-center gap-1 shrink-0">
-                            <button type="button" onClick={() => setQty(p.id, qty - 1)}
-                              className="w-7 h-7 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center font-bold transition-colors">
-                              −
-                            </button>
-                            <span className="w-8 text-center text-sm font-semibold text-violet-700">{qty}</span>
-                            <button type="button" onClick={() => setQty(p.id, Math.min(qty + 1, p.stock))}
-                              className="w-7 h-7 rounded-lg bg-violet-100 text-violet-600 hover:bg-violet-200 flex items-center justify-center font-bold transition-colors">
-                              +
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+              <div>
+                <label className="label">Cliente</label>
+                <select className="input" value={form.customerId}
+                  onChange={e => setForm({ customerId: e.target.value, shippingAddressId: '' })}>
+                  <option value="">Seleccionar cliente...</option>
+                  {customers.filter(c => c.status === 'ACTIVE').map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
-              {/* Columna derecha: resumen del carrito */}
-              <div className="w-64 flex flex-col shrink-0">
-                <div className="px-5 pt-5 pb-3 shrink-0">
+              <div>
+                <label className="label">Dirección de envío</label>
+                <select className="input" value={form.shippingAddressId}
+                  onChange={e => setForm(f => ({ ...f, shippingAddressId: e.target.value }))}
+                  disabled={!form.customerId}>
+                  <option value="">{form.customerId ? 'Seleccionar dirección...' : 'Primero elige un cliente'}</option>
+                  {addresses.map(a => (
+                    <option key={a.id} value={a.id}>{a.addressLine}, {a.city}</option>
+                  ))}
+                </select>
+                {form.customerId && addresses.length === 0 && (
+                  <p className="text-xs text-amber-500 mt-1">Este cliente no tiene direcciones.</p>
+                )}
+              </div>
+
+              {/* Carrito */}
+              <div className="border-t border-gray-100 pt-4">
+                <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    Resumen {cartItems.length > 0 && `(${cartItems.length})`}
+                    Productos {cart.length > 0 && `(${cart.length})`}
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => setPickerOpen(true)}
+                    className="btn-secondary text-xs py-1.5 px-3"
+                  >
+                    + Agregar producto
+                  </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-5 space-y-2">
-                  {cartItems.length === 0 ? (
-                    <p className="text-sm text-gray-400">Agrega productos desde la lista.</p>
-                  ) : (
-                    cartItems.map(item => (
-                      <div key={item.id} className="text-sm">
-                        <p className="font-medium text-gray-700 truncate">{item.name}</p>
-                        <div className="flex justify-between text-xs text-gray-400">
-                          <span>×{item.quantity}</span>
-                          <span className="text-gray-700 font-medium">${(item.price * item.quantity).toLocaleString('es-CO')}</span>
+                {cart.length === 0 ? (
+                  <p className="text-sm text-gray-400 py-2">Sin productos agregados.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map(item => (
+                      <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 rounded-xl">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
+                          <p className="text-xs text-gray-400">×{item.quantity} · ${item.price?.toLocaleString('es-CO')} c/u</p>
                         </div>
+                        <p className="text-sm font-semibold text-gray-700 shrink-0">
+                          ${(item.price * item.quantity).toLocaleString('es-CO')}
+                        </p>
+                        <button type="button" onClick={() => handleRemoveFromCart(item.id)}
+                          className="w-6 h-6 rounded-md flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors shrink-0">
+                          <XIcon />
+                        </button>
                       </div>
-                    ))
-                  )}
-                </div>
-
-                {cartItems.length > 0 && (
-                  <div className="px-5 py-3 border-t border-gray-100 shrink-0">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Total</span>
+                    ))}
+                    <div className="flex justify-between items-center px-4 py-3 bg-violet-50 rounded-xl">
+                      <span className="text-sm font-semibold text-gray-600">Total estimado</span>
                       <span className="text-base font-bold text-violet-700">${total.toLocaleString('es-CO')}</span>
                     </div>
                   </div>
                 )}
+              </div>
 
-                {/* Botones */}
-                <div className="px-5 pb-5 pt-3 space-y-2 shrink-0 border-t border-gray-100">
-                  <button
-                    type="button"
-                    disabled={createMutation.isPending || cartItems.length === 0 || !form.customerId || !form.shippingAddressId}
-                    className="btn-primary w-full disabled:opacity-50"
-                    onClick={() => {
-                      if (cartItems.length === 0) { setError('Agrega al menos un producto.'); return }
-                      if (!form.customerId || !form.shippingAddressId) { setError('Completa cliente y dirección.'); return }
-                      setError('')
-                      createMutation.mutate({
-                        customerId: parseInt(form.customerId),
-                        shippingAddressId: parseInt(form.shippingAddressId),
-                        cartItems,
-                      })
-                    }}
-                  >
-                    {createMutation.isPending ? 'Creando...' : 'Crear orden'}
-                  </button>
-                  <button type="button" onClick={handleClose} className="btn-secondary w-full">Cancelar</button>
-                </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={createMutation.isPending}
+                  className="btn-primary flex-1 disabled:opacity-60"
+                  onClick={() => {
+                    if (!form.customerId || !form.shippingAddressId) { setError('Completa cliente y dirección.'); return }
+                    if (cart.length === 0) { setError('Agrega al menos un producto.'); return }
+                    setError('')
+                    createMutation.mutate({ customerId: parseInt(form.customerId), shippingAddressId: parseInt(form.shippingAddressId), cart })
+                  }}
+                >
+                  {createMutation.isPending ? 'Creando...' : 'Crear orden'}
+                </button>
+                <button type="button" onClick={handleClose} className="btn-secondary">Cancelar</button>
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Sub-modal selector de productos */}
+      {pickerOpen && (
+        <ProductPicker
+          products={availableProducts}
+          onAdd={handleAddProduct}
+          onClose={() => setPickerOpen(false)}
+        />
       )}
     </div>
   )
