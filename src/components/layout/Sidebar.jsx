@@ -59,18 +59,26 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-16 flex flex-col items-center py-6 gap-2 z-50"
-      style={{ background: 'linear-gradient(180deg, #6d28d9 0%, #7c3aed 50%, #8b5cf6 100%)' }}>
-
+    <aside
+      className="fixed left-0 top-0 h-full z-50 flex flex-col items-center py-5 gap-2"
+      style={{
+        width: '72px',
+        background: '#ffffff',
+        boxShadow: '4px 0 24px rgba(109,40,217,0.07)',
+      }}
+    >
       {/* Logo */}
-      <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+      <div
+        className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3 shadow-md"
+        style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)' }}
+      >
         <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
         </svg>
       </div>
 
-      {/* Nav links */}
-      <nav className="flex flex-col gap-1 flex-1 w-full px-2">
+      {/* Nav */}
+      <nav className="flex flex-col gap-1 flex-1 w-full px-3 mt-2">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -78,34 +86,47 @@ export function Sidebar() {
             end={item.to === '/dashboard'}
             title={item.label}
             className={({ isActive }) =>
-              `flex items-center justify-center w-full h-10 rounded-xl transition-all duration-200 group relative
+              `relative flex items-center justify-center w-full h-11 rounded-2xl transition-all duration-200 group
               ${isActive
-                ? 'bg-white/25 text-white shadow-lg'
-                : 'text-white/60 hover:bg-white/15 hover:text-white'
+                ? 'shadow-lg'
+                : 'text-gray-400 hover:text-violet-600 hover:bg-violet-50'
               }`
+            }
+            style={({ isActive }) => isActive
+              ? { background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', color: 'white' }
+              : {}
             }
           >
             {item.icon}
+            {/* Indicador lateral activo */}
+            <NavLink
+              to={item.to}
+              end={item.to === '/dashboard'}
+              className="hidden"
+            />
             {/* Tooltip */}
-            <span className="absolute left-14 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap
-              opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-lg">
+            <span className="absolute left-[60px] bg-gray-800 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap
+              opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-xl">
               {item.label}
             </span>
           </NavLink>
         ))}
       </nav>
 
+      {/* Divider */}
+      <div className="w-8 h-px bg-gray-100 my-1" />
+
       {/* Logout */}
       <button
         onClick={handleLogout}
         title="Cerrar sesión"
-        className="flex items-center justify-center w-10 h-10 rounded-xl text-white/60 hover:bg-white/15 hover:text-white transition-all duration-200 group relative"
+        className="relative flex items-center justify-center w-11 h-11 rounded-2xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 group mb-1"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
           <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
         </svg>
-        <span className="absolute left-14 bg-gray-900 text-white text-xs font-medium px-2 py-1 rounded-lg whitespace-nowrap
-          opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-lg">
+        <span className="absolute left-[60px] bg-gray-800 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap
+          opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-xl">
           Cerrar sesión
         </span>
       </button>
