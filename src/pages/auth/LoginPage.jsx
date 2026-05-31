@@ -34,17 +34,17 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg, #f3f0ff 0%, #e9d5ff 50%, #ddd6fe 100%)' }}>
+      style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #e0e7ff 100%)' }}>
 
       {/* Decorative blobs */}
-      <div className="absolute top-20 left-20 w-64 h-64 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
-      <div className="absolute bottom-20 right-20 w-64 h-64 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
+      <div className="absolute top-20 left-20 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-pulse" />
+      <div className="absolute bottom-20 right-20 w-64 h-64 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-pulse" />
 
       <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-10 w-full max-w-md">
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)' }}>
+            style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}>
             <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8">
               <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
             </svg>
