@@ -60,25 +60,23 @@ export function Sidebar() {
 
   return (
     <aside
-      className="fixed left-0 top-0 h-full z-50 flex flex-col items-center py-5 gap-2"
+      className="fixed left-3 top-4 bottom-4 z-50 flex flex-col items-center py-5 gap-2"
       style={{
-        width: '72px',
-        background: '#ffffff',
-        boxShadow: '4px 0 24px rgba(109,40,217,0.07)',
+        width: '68px',
+        background: 'linear-gradient(180deg, #6d28d9 0%, #7c3aed 60%, #8b5cf6 100%)',
+        borderRadius: '28px',
+        boxShadow: '0 8px 32px rgba(109,40,217,0.35), 0 2px 8px rgba(109,40,217,0.2)',
       }}
     >
-      {/* Logo */}
-      <div
-        className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3 shadow-md"
-        style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)' }}
-      >
-        <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+      {/* Logo — cesta de compras */}
+      <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-2 bg-white/20">
+        <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6">
+          <path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1h-4.79zM9 9l3-4.4L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
         </svg>
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-col gap-1 flex-1 w-full px-3 mt-2">
+      <nav className="flex flex-col gap-1 flex-1 w-full px-3 mt-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -88,25 +86,15 @@ export function Sidebar() {
             className={({ isActive }) =>
               `relative flex items-center justify-center w-full h-11 rounded-2xl transition-all duration-200 group
               ${isActive
-                ? 'shadow-lg'
-                : 'text-gray-400 hover:text-violet-600 hover:bg-violet-50'
+                ? 'bg-white/25 text-white shadow-inner'
+                : 'text-white/55 hover:text-white hover:bg-white/15'
               }`
-            }
-            style={({ isActive }) => isActive
-              ? { background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', color: 'white' }
-              : {}
             }
           >
             {item.icon}
-            {/* Indicador lateral activo */}
-            <NavLink
-              to={item.to}
-              end={item.to === '/dashboard'}
-              className="hidden"
-            />
             {/* Tooltip */}
-            <span className="absolute left-[60px] bg-gray-800 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap
-              opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-xl">
+            <span className="absolute left-[62px] bg-gray-900/90 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap
+              opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-xl backdrop-blur-sm">
               {item.label}
             </span>
           </NavLink>
@@ -114,18 +102,18 @@ export function Sidebar() {
       </nav>
 
       {/* Divider */}
-      <div className="w-8 h-px bg-gray-100 my-1" />
+      <div className="w-8 h-px bg-white/20 my-1" />
 
       {/* Logout */}
       <button
         onClick={handleLogout}
         title="Cerrar sesión"
-        className="relative flex items-center justify-center w-11 h-11 rounded-2xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 group mb-1"
+        className="relative flex items-center justify-center w-11 h-11 rounded-2xl text-white/55 hover:text-white hover:bg-white/15 transition-all duration-200 group"
       >
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
           <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
         </svg>
-        <span className="absolute left-[60px] bg-gray-800 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap
+        <span className="absolute left-[62px] bg-gray-900/90 text-white text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap
           opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-xl">
           Cerrar sesión
         </span>
