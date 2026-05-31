@@ -14,21 +14,25 @@ export default function DashboardHome() {
   const { data: monthlyIncome = [] } = useQuery({
     queryKey: ['report-monthly-income'],
     queryFn: () => getMonthlyIncome().then(r => r.data),
+    refetchInterval: 30000,
   })
 
   const { data: bestSelling = [] } = useQuery({
     queryKey: ['report-best-selling'],
     queryFn: () => getBestSellingProducts().then(r => r.data),
+    refetchInterval: 30000,
   })
 
   const { data: topCustomers = [] } = useQuery({
     queryKey: ['report-top-customers'],
     queryFn: () => getTopCustomers().then(r => r.data),
+    refetchInterval: 30000,
   })
 
   const { data: lowStock = [] } = useQuery({
     queryKey: ['report-low-stock'],
     queryFn: () => getLowStockProducts().then(r => r.data),
+    refetchInterval: 30000,
   })
 
   const { data: products = [] } = useQuery({

@@ -36,6 +36,10 @@ export default function OrderDetailModal({ orderId, onClose }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders', String(orderId)] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['report-monthly-income'] })
+      queryClient.invalidateQueries({ queryKey: ['report-best-selling'] })
+      queryClient.invalidateQueries({ queryKey: ['report-top-customers'] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
       setConfirmAction(null)
     },
   })
