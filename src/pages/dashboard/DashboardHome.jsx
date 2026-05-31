@@ -36,17 +36,13 @@ export default function DashboardHome() {
 
   const stats = [
     { label: 'Ingresos del mes', value: `$${currentMonthIncome.toLocaleString('es-CO')}`, sub: 'mes actual',
-      icon: <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />,
-      bg: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)', shadow: 'rgba(29,78,216,0.35)' },
+      icon: <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" /> },
     { label: 'Órdenes totales', value: totalOrders.toLocaleString('es-CO'), sub: 'en el sistema',
-      icon: <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />,
-      bg: 'linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%)', shadow: 'rgba(2,132,199,0.35)' },
+      icon: <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" /> },
     { label: 'Clientes activos', value: activeCustomers.toLocaleString('es-CO'), sub: `de ${customers.length} registrados`,
-      icon: <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />,
-      bg: 'linear-gradient(135deg, #164e63 0%, #0e7490 100%)', shadow: 'rgba(14,116,144,0.35)' },
+      icon: <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /> },
     { label: 'Productos', value: products.length.toLocaleString('es-CO'), sub: `${products.filter(p => p.active).length} activos`,
-      icon: <path d="M20 6h-2.18c.07-.44.18-.88.18-1.35C18 2.99 16.66 2 15 2c-1.01 0-1.83.56-2.43 1.19L12 3.77l-.57-.58C10.83 2.56 10.01 2 9 2 7.34 2 6 2.99 6 4.65c0 .47.11.91.18 1.35H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />,
-      bg: 'linear-gradient(135deg, #312e81 0%, #4f46e5 100%)', shadow: 'rgba(79,70,229,0.35)' },
+      icon: <path d="M20 6h-2.18c.07-.44.18-.88.18-1.35C18 2.99 16.66 2 15 2c-1.01 0-1.83.56-2.43 1.19L12 3.77l-.57-.58C10.83 2.56 10.01 2 9 2 7.34 2 6 2.99 6 4.65c0 .47.11.91.18 1.35H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" /> },
   ]
 
   return (
@@ -57,21 +53,19 @@ export default function DashboardHome() {
         <h1 className="text-xl font-bold text-gray-800">Dashboard</h1>
       </div>
 
-      {/* Stat cards — colored full background */}
+      {/* Stat cards — mismo color, diseño limpio */}
       <div className="grid grid-cols-4 gap-4 shrink-0">
         {stats.map(s => (
           <div key={s.label} className="rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden"
-            style={{ background: s.bg, boxShadow: `0 8px 24px ${s.shadow}` }}>
-            {/* decorative circle */}
-            <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-white/10" />
-            <div className="absolute -right-1 bottom-2 w-10 h-10 rounded-full bg-white/5" />
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            style={{ background: 'linear-gradient(135deg, #1e2d6b 0%, #1a2547 100%)', boxShadow: '0 4px 16px rgba(15,23,42,0.25)' }}>
+            <div className="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-white/5" />
+            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
               <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">{s.icon}</svg>
             </div>
             <div className="min-w-0 relative">
-              <p className="text-xs text-white/70 truncate">{s.label}</p>
+              <p className="text-xs text-white/60 truncate">{s.label}</p>
               <p className="text-lg font-bold text-white leading-tight">{s.value}</p>
-              <p className="text-xs text-white/60 truncate">{s.sub}</p>
+              <p className="text-xs text-white/50 truncate">{s.sub}</p>
             </div>
           </div>
         ))}
