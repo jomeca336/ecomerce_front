@@ -138,7 +138,7 @@ export default function CustomerDetailModal({ customerId, onClose, onDeleted }) 
       {/* Modal editar */}
       {editModal && (
         <div
-          className="fixed inset-0 z-60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           style={{ background: 'rgba(17,10,36,0.45)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => e.target === e.currentTarget && setEditModal(false)}
         >
@@ -180,7 +180,7 @@ export default function CustomerDetailModal({ customerId, onClose, onDeleted }) 
       {/* Modal agregar dirección */}
       {addressModal && (
         <div
-          className="fixed inset-0 z-60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           style={{ background: 'rgba(17,10,36,0.45)', backdropFilter: 'blur(4px)' }}
           onClick={(e) => e.target === e.currentTarget && setAddressModal(false)}
         >
