@@ -57,20 +57,37 @@ export default function DashboardHome() {
         <h1 className="text-xl font-bold text-gray-800">Dashboard</h1>
       </div>
 
-      {/* Stat cards — blancas con ícono de color suave */}
+      {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4 shrink-0">
-        {stats.map(s => (
-          <div key={s.label} className="card p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: s.iconBg }}>
-              <svg viewBox="0 0 24 24" fill={s.iconColor} className="w-5 h-5">{s.icon}</svg>
+        {stats.map((s, i) => (
+          i === 0 ? (
+            /* Primera tarjeta — azul noche, la más importante */
+            <div key={s.label} className="rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden"
+              style={{ background: 'linear-gradient(135deg, #1e2d6b 0%, #1a2547 100%)', boxShadow: '0 4px 16px rgba(15,23,42,0.2)' }}>
+              <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-white/5" />
+              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">{s.icon}</svg>
+              </div>
+              <div className="min-w-0 relative">
+                <p className="text-xs text-white/60 truncate">{s.label}</p>
+                <p className="text-lg font-bold text-white leading-tight">{s.value}</p>
+                <p className="text-xs text-white/50 truncate">{s.sub}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-400 truncate">{s.label}</p>
-              <p className="text-lg font-bold text-gray-800 leading-tight">{s.value}</p>
-              <p className="text-xs text-gray-400 truncate">{s.sub}</p>
+          ) : (
+            /* Resto — blancas */
+            <div key={s.label} className="card p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: s.iconBg }}>
+                <svg viewBox="0 0 24 24" fill={s.iconColor} className="w-5 h-5">{s.icon}</svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-gray-400 truncate">{s.label}</p>
+                <p className="text-lg font-bold text-gray-800 leading-tight">{s.value}</p>
+                <p className="text-xs text-gray-400 truncate">{s.sub}</p>
+              </div>
             </div>
-          </div>
+          )
         ))}
       </div>
 
@@ -80,8 +97,8 @@ export default function DashboardHome() {
         {/* Col izquierda: gráficas */}
         <div className="col-span-2 flex flex-col gap-4 min-h-0">
 
-          {/* Ingresos mensuales */}
-          <div className="card flex-1 min-h-0 flex flex-col">
+          {/* Ingresos mensuales — tinte azul suave */}
+          <div className="flex-1 min-h-0 flex flex-col rounded-2xl p-6" style={{ background: '#f0f4ff', boxShadow: '0 2px 12px rgba(30,58,138,0.07)' }}>
             <h2 className="text-sm font-semibold text-gray-700 mb-3 shrink-0">Ingresos mensuales</h2>
             {incomeChartData.length === 0 ? (
               <div className="flex-1 flex items-center justify-center text-gray-300 text-sm">Sin datos aún</div>
