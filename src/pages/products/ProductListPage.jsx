@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getProducts, createProduct, updateProduct, updateInventory, deleteProduct } from '../../api/products.api'
+import { getProducts, createProduct, updateProduct, updateInventory, deleteProduct, getDeletedProducts, restoreProduct } from '../../api/products.api'
 import { getCategories } from '../../api/categories.api'
 import { StatusBadge } from '../../components/ui/StatusBadge'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
@@ -63,11 +63,18 @@ export default function ProductListPage() {
   const [inventoryModal, setInventoryModal] = useState({ open: false, product: null })
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [search, setSearch] = useState('')
+  const [showDeleted, setShowDeleted] = useState(false)
 
   const { data: products = [], isLoading, isError } = useQuery({
     queryKey: ['products'],
     queryFn: () => getProducts().then(r => r.data),
     refetchInterval: 30000,
+  })
+
+  const { data: deletedProducts = [] } = useQuery({
+    queryKey: ['products-deleted'],
+    queryFn: () => getDeletedProducts().then(r => r.data),
+    enabled: showDeleted,
   })
 
   const { data: categories = [] } = useQuery({
@@ -121,6 +128,14 @@ export default function ProductListPage() {
     },
   })
 
+  const restoreMutation = useMutation({
+    mutationFn: (id) => restoreProduct(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['products-deleted'] })
+    },
+  })
+
   const handleSave = ({ product, inventory }) => {
     if (productModal.product) {
       updateMutation.mutate({ id: productModal.product.id, data: product })
@@ -134,21 +149,73 @@ export default function ProductListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="page-title mb-0">Productos</h1>
-        <button className="btn-primary" onClick={() => setProductModal({ open: true, product: null })}>
-          + Nuevo producto
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowDeleted(v => !v)}
+            className={`text-sm font-medium px-4 py-2 rounded-xl border transition-colors ${showDeleted ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-white border-gray-200 text-gray-500 hover:text-gray-700'}`}
+          >
+            {showDeleted ? 'Ver activos' : 'Ver eliminados'}
+          </button>
+          {!showDeleted && (
+            <button className="btn-primary" onClick={() => setProductModal({ open: true, product: null })}>
+              + Nuevo producto
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="relative mb-4 max-w-sm">
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 absolute left-3 top-1/2 -translate-y-1/2">
-          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-        </svg>
-        <input className="input pl-9" placeholder="Buscar por nombre o SKU..." value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
+      {!showDeleted && (
+        <div className="relative mb-4 max-w-sm">
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 absolute left-3 top-1/2 -translate-y-1/2">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input className="input pl-9" placeholder="Buscar por nombre o SKU..." value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+      )}
 
-      <div className="card p-0 overflow-hidden">
+      {/* Tabla eliminados */}
+      {showDeleted && (
+        <div className="card p-0 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">SKU</th>
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre</th>
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Categoría</th>
+                <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Precio</th>
+                <th className="px-6 py-4" />
+              </tr>
+            </thead>
+            <tbody>
+              {deletedProducts.length === 0 && (
+                <tr><td colSpan={5} className="text-center px-6 py-10 text-gray-400">No hay productos eliminados.</td></tr>
+              )}
+              {deletedProducts.map(p => (
+                <tr key={p.id} className="border-b border-gray-50 bg-gray-50/50">
+                  <td className="px-6 py-4 font-mono text-xs text-gray-400">{p.sku}</td>
+                  <td className="px-6 py-4 font-medium text-gray-500">{p.name}</td>
+                  <td className="px-6 py-4 text-gray-400">{categoryName(p.categoryId)}</td>
+                  <td className="px-6 py-4 text-gray-400">${p.price?.toLocaleString('es-CO')}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      className="text-xs py-1.5 px-3 rounded-lg font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                      onClick={() => restoreMutation.mutate(p.id)}
+                      disabled={restoreMutation.isPending}
+                    >
+                      Restaurar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Tabla activos */}
+      {!showDeleted && <div className="card p-0 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100">
@@ -229,7 +296,7 @@ export default function ProductListPage() {
             })()}
           </tbody>
         </table>
-      </div>
+      </div>}
 
       {productModal.open && (
         <ProductModal
