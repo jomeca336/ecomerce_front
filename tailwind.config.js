@@ -5,16 +5,16 @@ export default {
     extend: {
       colors: {
         primary: {
-          50:  '#f3f0ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+          50:  '#f0f4ff',
+          100: '#dce8ff',
+          200: '#b9cfff',
+          300: '#85aaff',
+          400: '#4d7fff',
+          500: '#2563eb',
+          600: '#1d4ed8',
+          700: '#1e3a8a',
+          800: '#1e2d6b',
+          900: '#0f172a',
         },
       },
       boxShadow: {

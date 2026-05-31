@@ -63,13 +63,13 @@ export function Sidebar() {
       className="fixed left-3 top-4 bottom-4 z-50 flex flex-col items-center py-5 gap-2"
       style={{
         width: '68px',
-        background: 'linear-gradient(180deg, #6d28d9 0%, #7c3aed 60%, #8b5cf6 100%)',
+        background: 'linear-gradient(180deg, #1e2d6b 0%, #1a2547 60%, #0f172a 100%)',
         borderRadius: '28px',
-        boxShadow: '0 8px 32px rgba(109,40,217,0.35), 0 2px 8px rgba(109,40,217,0.2)',
+        boxShadow: '0 8px 32px rgba(15,23,42,0.35), 0 2px 12px rgba(15,23,42,0.2)',
       }}
     >
       {/* Logo — cesta de compras */}
-      <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-2 bg-white/20">
+      <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-2 bg-white/10">
         <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6">
           <path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1h-4.79zM9 9l3-4.4L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
         </svg>
