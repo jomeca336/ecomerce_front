@@ -59,12 +59,9 @@ export default function DashboardHome() {
 
       {/* Stat cards — todas azul noche */}
       <div className="grid grid-cols-4 gap-4 shrink-0">
-        {stats.map((s, i) => (
+        {stats.map((s) => (
           <div key={s.label} className="rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden"
-            style={i < 2
-              ? { background: 'linear-gradient(135deg, #334155 0%, #1e293b 100%)', boxShadow: '0 4px 16px rgba(30,41,59,0.25)' }
-              : { background: 'linear-gradient(135deg, #252a3d 0%, #1c1f2e 100%)', boxShadow: '0 4px 16px rgba(28,31,46,0.25)' }
-            }>
+            style={{ background: 'linear-gradient(135deg, #252a3d 0%, #1c1f2e 100%)', boxShadow: '0 4px 16px rgba(28,31,46,0.25)' }}>
             <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-white/5" />
             <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
               <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">{s.icon}</svg>
