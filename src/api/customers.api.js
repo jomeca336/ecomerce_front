@@ -7,3 +7,4 @@ export const updateCustomer  = (id, data)   => api.put(`/api/customers/${id}`, d
 export const deleteCustomer      = (id)     => api.delete(`/api/customers/${id}`)
 export const getDeletedCustomers = ()       => api.get('/api/customers/deleted')
 export const restoreCustomer     = (id)     => api.put(`/api/customers/${id}/restore`)
+export const getCustomerOrders   = (id)     => api.get(`/api/customers/${id}/orders`)
