@@ -91,7 +91,11 @@ export default function OrderDetailModal({ orderId, onClose, zIndex = 50 }) {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 mb-0.5">Dirección de envío</p>
-                  <p className="font-medium text-gray-700">ID #{order.shippingAddressId}</p>
+                  <p className="font-medium text-gray-700">
+                    {order.shippingAddressLine
+                      ? `${order.shippingAddressLine}, ${order.shippingCity}`
+                      : `ID #${order.shippingAddressId}`}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 mb-0.5">Fecha</p>
