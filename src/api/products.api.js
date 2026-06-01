@@ -8,3 +8,4 @@ export const updateInventory = (id, data)   => api.put(`/api/products/${id}/inve
 export const deleteProduct      = (id)      => api.delete(`/api/products/${id}`)
 export const getDeletedProducts = ()        => api.get('/api/products/deleted')
 export const restoreProduct     = (id)      => api.put(`/api/products/${id}/restore`)
+export const getStockHistory    = (id)      => api.get(`/api/products/${id}/stock-history`)

@@ -7,6 +7,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { usePermissions } from '../../hooks/usePermissions'
 import ProductModal from './ProductModal'
 import InventoryModal from './InventoryModal'
+import StockHistoryModal from './StockHistoryModal'
 
 function stockStatus(stock, minStock) {
   if (stock === null || stock === undefined) return 'none'
@@ -62,6 +63,7 @@ export default function ProductListPage() {
   const [productModal, setProductModal] = useState({ open: false, product: null })
   const [inventoryModal, setInventoryModal] = useState({ open: false, product: null })
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [historyProduct, setHistoryProduct] = useState(null)
   const [search, setSearch] = useState('')
   const [showDeleted, setShowDeleted] = useState(false)
 
@@ -272,6 +274,12 @@ export default function ProductListPage() {
                         Stock
                       </button>
                       <button
+                        className="btn-secondary text-xs py-1.5 px-3"
+                        onClick={() => setHistoryProduct(p)}
+                      >
+                        Historial
+                      </button>
+                      <button
                         className={`text-xs py-1.5 w-24 text-center rounded-lg font-medium transition-colors ${p.active ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                         onClick={() => toggleMutation.mutate(p)}
                         disabled={toggleMutation.isPending}
@@ -317,6 +325,10 @@ export default function ProductListPage() {
           onSave={(data) => inventoryMutation.mutate({ id: inventoryModal.product.id, data })}
           onClose={() => setInventoryModal({ open: false, product: null })}
         />
+      )}
+
+      {historyProduct && (
+        <StockHistoryModal product={historyProduct} onClose={() => setHistoryProduct(null)} />
       )}
 
       {deleteTarget && (
