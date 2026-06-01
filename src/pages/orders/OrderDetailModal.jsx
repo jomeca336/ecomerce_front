@@ -15,7 +15,7 @@ const STATUS_ACTIONS = {
 }
 const ACTION_FN = { pay: payOrder, ship: shipOrder, deliver: deliverOrder, cancel: cancelOrder }
 
-export default function OrderDetailModal({ orderId, onClose }) {
+export default function OrderDetailModal({ orderId, onClose, zIndex = 50 }) {
   const queryClient = useQueryClient()
   const [confirmAction, setConfirmAction] = useState(null)
 
@@ -56,8 +56,8 @@ export default function OrderDetailModal({ orderId, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(17,10,36,0.45)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 flex items-center justify-center p-4"
+      style={{ background: 'rgba(17,10,36,0.45)', backdropFilter: 'blur(4px)', zIndex }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">

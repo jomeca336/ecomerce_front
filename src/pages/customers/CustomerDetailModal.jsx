@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getCustomerById, updateCustomer, deleteCustomer, getCustomerOrders } from '../../api/customers.api'
+import OrderDetailModal from '../orders/OrderDetailModal'
 import { getAddresses, createAddress } from '../../api/addresses.api'
 import { StatusBadge } from '../../components/ui/StatusBadge'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
@@ -20,6 +21,7 @@ export default function CustomerDetailModal({ customerId, onClose, onDeleted }) 
   const { isAdmin } = usePermissions()
 
   const [tab, setTab] = useState('info') // 'info' | 'orders'
+  const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [editModal, setEditModal] = useState(false)
   const [addressModal, setAddressModal] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState(false)
@@ -190,7 +192,7 @@ export default function CustomerDetailModal({ customerId, onClose, onDeleted }) 
               ) : (
                 <div className="space-y-2">
                   {orders.map(o => (
-                    <div key={o.id} className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                    <div key={o.id} onClick={() => setSelectedOrderId(o.id)} className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary-50 cursor-pointer transition-colors">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-mono text-gray-400">#{o.id}</span>
@@ -293,6 +295,14 @@ export default function CustomerDetailModal({ customerId, onClose, onDeleted }) 
             </form>
           </div>
         </div>
+      )}
+
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+          zIndex={70}
+        />
       )}
 
       {deleteDialog && (
